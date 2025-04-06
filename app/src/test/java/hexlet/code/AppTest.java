@@ -5,11 +5,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class MainTest {
+class AppTest {
 
     @Test
     void test() {
-        Main.main(new String[]{});
+        App.main(new String[]{});
         assertTrue(true);
     }
 }

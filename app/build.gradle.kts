@@ -1,5 +1,5 @@
 plugins {
-    id("java")
+    id("application")
     id("checkstyle")
     id("jacoco")
     id("org.sonarqube") version "6.1.0.5360"
@@ -7,6 +7,10 @@ plugins {
 
 group = "hexlet.code"
 version = "1.0-SNAPSHOT"
+
+application {
+    mainClass = "hexlet.code.App"
+}
 
 checkstyle {
     toolVersion = "10.23.0"
@@ -24,9 +28,9 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-}
-
-tasks.test {
+    reports {
+        html.required = false
+    }
     finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
 }
 
@@ -34,7 +38,6 @@ tasks.jacocoTestReport {
     dependsOn(tasks.test) // tests are required to run before generating the report
     reports {
         xml.required = true
-        html.required = false
     }
 }
 
