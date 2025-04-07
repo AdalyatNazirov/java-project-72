@@ -3,6 +3,7 @@ plugins {
     id("checkstyle")
     id("jacoco")
     id("org.sonarqube") version "6.1.0.5360"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "hexlet.code"
@@ -21,6 +22,9 @@ repositories {
 }
 
 dependencies {
+    implementation("io.javalin:javalin:6.5.0")
+    implementation("org.slf4j:slf4j-simple:2.0.7")
+
     testImplementation(platform("org.junit:junit-bom:5.12.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
