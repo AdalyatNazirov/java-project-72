@@ -2,6 +2,7 @@ plugins {
     id("application")
     id("checkstyle")
     id("jacoco")
+    id("io.freefair.lombok") version "8.13.1"
     id("org.sonarqube") version "6.1.0.5360"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
@@ -22,6 +23,9 @@ repositories {
 }
 
 dependencies {
+    implementation("org.postgresql:postgresql:42.7.5")
+    implementation("com.h2database:h2:2.3.232")
+    implementation("com.zaxxer:HikariCP:6.3.0")
     implementation("io.javalin:javalin:6.5.0")
     implementation("org.slf4j:slf4j-simple:2.0.7")
 
