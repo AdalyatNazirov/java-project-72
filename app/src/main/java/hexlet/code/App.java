@@ -2,8 +2,12 @@ package hexlet.code;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import gg.jte.ContentType;
+import gg.jte.TemplateEngine;
+import gg.jte.resolve.ResourceCodeResolver;
 import hexlet.code.repository.BaseRepository;
 import io.javalin.Javalin;
+import io.javalin.rendering.template.JavalinJte;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
@@ -27,8 +31,7 @@ public class App {
         var sql = readResourceFile();
 
         log.info(sql);
-        try (var connection = dataSource.getConnection();
-             var statement = connection.createStatement()) {
+        try (var connection = dataSource.getConnection(); var statement = connection.createStatement()) {
             statement.execute(sql);
         }
         BaseRepository.dataSource = dataSource;
@@ -38,9 +41,10 @@ public class App {
             if (isDevEnvironment()) {
                 config.bundledPlugins.enableDevLogging();
             }
+            config.fileRenderer(new JavalinJte(createTemplateEngine()));
         });
 
-        app.get("/", ctx -> ctx.result("Hello World"));
+        app.get("/", ctx -> ctx.render("index.jte"));
 
         return app;
     }
@@ -61,9 +65,7 @@ public class App {
     }
 
     private static String getConnectionString() {
-        return System.getenv().getOrDefault(
-                "JDBC_DATABASE_URL",
-                "jdbc:h2:mem:project;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;");
+        return System.getenv().getOrDefault("JDBC_DATABASE_URL", "jdbc:h2:mem:project;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;");
     }
 
     private static String readResourceFile() throws IOException {
@@ -73,5 +75,12 @@ public class App {
                 return reader.lines().collect(Collectors.joining("\n"));
             }
         }
+    }
+
+    private static TemplateEngine createTemplateEngine() {
+        ClassLoader classLoader = App.class.getClassLoader();
+        ResourceCodeResolver codeResolver = new ResourceCodeResolver("templates", classLoader);
+        TemplateEngine templateEngine = TemplateEngine.create(codeResolver, ContentType.Html);
+        return templateEngine;
     }
 }
