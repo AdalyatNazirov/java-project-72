@@ -12,12 +12,13 @@ import io.javalin.validation.ValidationException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.sql.SQLException;
 
 import static io.javalin.rendering.template.TemplateUtil.model;
 
 public class UrlController {
+    private static final String UNIQUES_CONSTRAINT_VIOLATION_CODE = "23505";
+
     public static void build(Context ctx) {
         var page = new BuildUrlPage();
         page.setFlash(ctx.consumeSessionAttribute("flash"));
@@ -73,8 +74,8 @@ public class UrlController {
 
     private static boolean isValidURL(String url) {
         try {
-            new URL(url).toURI();
-            return true;
+            URI uri = URI.create(url);
+            return uri.getScheme() != null && uri.getHost() != null;
         } catch (Exception e) {
             return false;
         }
@@ -87,19 +88,19 @@ public class UrlController {
     }
 
     private static void handleSqlException(Context ctx, SQLException e) {
-        if (e.getErrorCode() == 23505) {
+        if (UNIQUES_CONSTRAINT_VIOLATION_CODE.equals(e.getSQLState())) {
             setFlashAndRedirect(ctx, "Страница уже существует", "warning", NamedRoutes.urlsPath());
         } else {
             var url = ctx.formParam("url");
             var page = new BuildUrlPage();
             page.setUrl(url);
-            ctx.render("products/build.jte", model("page", page));
+            ctx.render("urls/build.jte", model("page", page));
         }
     }
 
     private static void handleValidationException(Context ctx, ValidationException e) {
         var url = ctx.formParam("url");
         var page = new BuildUrlPage(url, e.getErrors());
-        ctx.render("products/build.jte", model("page", page)).status(422);
+        ctx.render("urls/build.jte", model("page", page)).status(422);
     }
 }
