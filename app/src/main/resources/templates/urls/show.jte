@@ -1,4 +1,5 @@
 @import hexlet.code.dto.urls.UrlPage
+@import hexlet.code.util.NamedRoutes
 @param UrlPage page
 
 @template.layout.main(
@@ -35,6 +36,9 @@ content = @`
 
     <h2>Checks</h2>
 
+    <form action="${NamedRoutes.urlCheckPath(page.getUrl().getId())}" method="post" class="mb-4">
+        <button type="submit" class="btn btn-primary">Check Now</button>
+    </form>
     <div class="alert alert-info">No checks performed yet</div>
 `
 )

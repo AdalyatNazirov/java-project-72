@@ -31,10 +31,12 @@ dependencies {
     implementation("io.javalin:javalin-bundle:6.5.0")
     implementation("io.javalin:javalin-rendering:6.5.0")
     implementation("gg.jte:jte:3.2.0")
+    implementation("com.konghq:unirest-java:3.14.5")
 
     testImplementation(platform("org.junit:junit-bom:5.12.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.assertj:assertj-core:3.27.3")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

@@ -2,6 +2,8 @@ package hexlet.code;
 
 
 import hexlet.code.model.Url;
+import hexlet.code.model.UrlCheck;
+import hexlet.code.repository.UrlCheckRepository;
 import hexlet.code.repository.UrlRepository;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.Javalin;
@@ -50,6 +52,25 @@ class AppTest {
             assertThat(response.code()).isEqualTo(200);
         });
     }
+
+    @Test
+    public void testUrlsPagWithChecks() {
+        JavalinTest.test(app, (server, client) -> {
+            var url = new Url();
+            url.setName(website);
+            UrlRepository.save(url);
+
+            var urlCheck = new UrlCheck();
+            urlCheck.setUrlId(url.getId());
+            urlCheck.setStatusCode(200);
+            UrlCheckRepository.save(urlCheck);
+            var response = client.get(NamedRoutes.urlsPath());
+            assertThat(response.code()).isEqualTo(200);
+            assertNotNull(response.body());
+            assertThat(response.body().string()).contains(urlCheck.getStatusCode().toString());
+        });
+    }
+
 
     @Test
     public void testUrlPage() {

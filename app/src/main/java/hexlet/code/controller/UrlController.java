@@ -4,11 +4,14 @@ import hexlet.code.dto.urls.BuildUrlPage;
 import hexlet.code.dto.urls.UrlPage;
 import hexlet.code.dto.urls.UrlsPage;
 import hexlet.code.model.Url;
+import hexlet.code.model.UrlCheck;
+import hexlet.code.repository.UrlCheckRepository;
 import hexlet.code.repository.UrlRepository;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
 import io.javalin.validation.ValidationException;
+import kong.unirest.Unirest;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -28,9 +31,7 @@ public class UrlController {
 
     public static void create(Context ctx) {
         try {
-            var urlString = ctx.formParamAsClass("url", String.class)
-                    .check(value -> !value.isEmpty(), "URL не должен быть пустым")
-                    .get();
+            var urlString = ctx.formParamAsClass("url", String.class).check(value -> !value.isEmpty(), "URL не должен быть пустым").get();
 
             if (!isValidURL(urlString)) {
                 setFlashAndRedirect(ctx, "Некорректный URL", "danger", NamedRoutes.rootPath());
@@ -41,7 +42,7 @@ public class UrlController {
             URI baseUri = new URI(uri.getScheme(), uri.getAuthority(), null, null, null);
 
             var url = new Url();
-            url.setName(baseUri.toString());
+            url.setName(baseUri.toString().toLowerCase());
             UrlRepository.save(url);
 
             setFlashAndRedirect(ctx, "Страница успешно добавлена", "success", NamedRoutes.urlsPath());
@@ -57,7 +58,8 @@ public class UrlController {
 
     public static void list(Context ctx) throws SQLException {
         var urls = UrlRepository.getEntities();
-        var page = new UrlsPage(urls);
+        var urlChecks = UrlCheckRepository.findLatestChecks();
+        var page = new UrlsPage(urls, urlChecks);
         page.setFlash(ctx.consumeSessionAttribute("flash"));
         page.setFlashType(ctx.consumeSessionAttribute("flash-type"));
         ctx.render("urls/list.jte", model("page", page));
@@ -65,11 +67,24 @@ public class UrlController {
 
     public static void show(Context ctx) throws SQLException {
         var id = ctx.pathParamAsClass("id", Long.class).get();
-        var url = UrlRepository.find(id).orElseThrow(() -> new NotFoundResponse("Product not found"));
+        var url = UrlRepository.find(id).orElseThrow(() -> new NotFoundResponse("Url not found"));
 
         var page = new UrlPage(url);
 
         ctx.render("urls/show.jte", model("page", page));
+    }
+
+    public static void check(Context ctx) throws SQLException {
+        var urlId = ctx.pathParamAsClass("id", Long.class).get();
+        var url = UrlRepository.find(urlId).orElseThrow(() -> new NotFoundResponse("Url not found"));
+
+        var response = Unirest.get(url.getName()).asString();
+        var urlCheck = new UrlCheck();
+        urlCheck.setUrlId(urlId);
+        urlCheck.setStatusCode(response.getStatus());
+        UrlCheckRepository.save(urlCheck);
+
+        ctx.redirect(NamedRoutes.urlPath(urlId));
     }
 
     private static boolean isValidURL(String url) {

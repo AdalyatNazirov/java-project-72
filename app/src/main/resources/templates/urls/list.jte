@@ -18,8 +18,8 @@ content = @`
                 <tr>
                     <th>ID</th>
                     <th>Website Name</th>
-                    <th>URL</th>
-                    <th>Added On</th>
+                    <th>Last visit</th>
+                    <th>Status code</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -29,8 +29,16 @@ content = @`
                         <td>
                             <a href="${NamedRoutes.urlPath(url.getId())}">${url.getName()}</a>
                         </td>
-                        <td>${url.getName()}</td>
-                        <td>${url.getFormattedCreatedAt()}</td>
+                        <td>
+                            @if(page.getChecks().containsKey(url.getId()))
+                                ${page.getChecks().get(url.getId()).getFormattedCreatedAt()}
+                            @endif
+                        </td>
+                        <td>
+                            @if(page.getChecks().containsKey(url.getId()))
+                                ${page.getChecks().get(url.getId()).getStatusCode()}
+                            @endif
+                        </td>
                     </tr>
                 @endfor
                 </tbody>
