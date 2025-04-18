@@ -12,10 +12,13 @@ import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
 import io.javalin.validation.ValidationException;
 import kong.unirest.Unirest;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
+import java.util.Optional;
 
 import static io.javalin.rendering.template.TemplateUtil.model;
 
@@ -68,8 +71,8 @@ public class UrlController {
     public static void show(Context ctx) throws SQLException {
         var id = ctx.pathParamAsClass("id", Long.class).get();
         var url = UrlRepository.find(id).orElseThrow(() -> new NotFoundResponse("Url not found"));
-
-        var page = new UrlPage(url);
+        var urlChecks = UrlCheckRepository.findByUrl(id);
+        var page = new UrlPage(url, urlChecks);
 
         ctx.render("urls/show.jte", model("page", page));
     }
@@ -79,9 +82,21 @@ public class UrlController {
         var url = UrlRepository.find(urlId).orElseThrow(() -> new NotFoundResponse("Url not found"));
 
         var response = Unirest.get(url.getName()).asString();
+        var body = response.getBody();
+        var page = Jsoup.parse(body);
+        var h1 = Optional.ofNullable(page.selectFirst("h1"))
+                .map(Element::text)
+                .orElse(null);
+        var description = Optional.ofNullable(page.selectFirst("meta[name=description]"))
+                .map(element -> element.attr("content"))
+                .orElse(null);
+
         var urlCheck = new UrlCheck();
         urlCheck.setUrlId(urlId);
         urlCheck.setStatusCode(response.getStatus());
+        urlCheck.setTitle(page.title());
+        urlCheck.setH1(h1);
+        urlCheck.setDescription(description);
         UrlCheckRepository.save(urlCheck);
 
         ctx.redirect(NamedRoutes.urlPath(urlId));

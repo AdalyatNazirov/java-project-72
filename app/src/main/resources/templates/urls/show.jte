@@ -39,6 +39,34 @@ content = @`
     <form action="${NamedRoutes.urlCheckPath(page.getUrl().getId())}" method="post" class="mb-4">
         <button type="submit" class="btn btn-primary">Check Now</button>
     </form>
-    <div class="alert alert-info">No checks performed yet</div>
+
+    @if(page.getUrlChecks().isEmpty())
+        <div class="alert alert-info">No checks performed yet</div>
+    @else
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Status Code</th>
+                <th>Title</th>
+                <th>H1</th>
+                <th>Description</th>
+                <th>Created At</th>
+            </tr>
+            </thead>
+            <tbody>
+            @for(var check : page.getUrlChecks())
+                <tr>
+                    <td>${check.getId()}</td>
+                    <td>${check.getStatusCode()}</td>
+                    <td>${check.getTitle()}</td>
+                    <td>${check.getH1()}</td>
+                    <td>${check.getDescription()}</td>
+                    <td>${check.getFormattedCreatedAt()}</td>
+                </tr>
+            @endfor
+            </tbody>
+        </table>
+    @endif
 `
 )

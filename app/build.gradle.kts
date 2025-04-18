@@ -32,6 +32,7 @@ dependencies {
     implementation("io.javalin:javalin-rendering:6.5.0")
     implementation("gg.jte:jte:3.2.0")
     implementation("com.konghq:unirest-java:3.14.5")
+    implementation("org.jsoup:jsoup:1.19.1")
 
     testImplementation(platform("org.junit:junit-bom:5.12.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
