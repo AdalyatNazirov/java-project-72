@@ -18,6 +18,11 @@ public class Url {
     private String name;
     private LocalDateTime createdAt;
 
+    /**
+     * Return formatted date time string for createdAt field.
+     *
+     * @return formatted date time string for createdAt field, example: 2022-01-01 00:00:00
+     */
     public String getFormattedCreatedAt() {
         return createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }

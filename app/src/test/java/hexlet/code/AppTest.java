@@ -12,7 +12,11 @@ import io.javalin.testtools.JavalinTest;
 import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class AppTest {
 
-    private static final String website = "https://example.com";
+    private static final String WEBSITE_NAME = "https://example.com";
     private static MockWebServer mockServer;
     private Javalin app;
 
@@ -78,7 +82,7 @@ class AppTest {
     public void testUrlsPageWithNoChecks() throws SQLException, IOException {
         JavalinTest.test(app, (server, client) -> {
             var url = new Url();
-            url.setName(website);
+            url.setName(WEBSITE_NAME);
             UrlRepository.save(url);
             var response = client.get(NamedRoutes.urlsPath());
             assertThat(response.code()).isEqualTo(200);
@@ -89,7 +93,7 @@ class AppTest {
     public void testUrlsPageWithChecks() {
         JavalinTest.test(app, (server, client) -> {
             var url = new Url();
-            url.setName(website);
+            url.setName(WEBSITE_NAME);
             UrlRepository.save(url);
 
             var urlCheck = new UrlCheck();
@@ -107,7 +111,7 @@ class AppTest {
     public void testUrlPageWithNoChecks() {
         JavalinTest.test(app, (server, client) -> {
             var url = new Url();
-            url.setName(website);
+            url.setName(WEBSITE_NAME);
 
             UrlRepository.save(url);
             var response = client.get(NamedRoutes.urlPath(url.getId()));
@@ -131,10 +135,10 @@ class AppTest {
     @Test
     public void testPostUrlPage() {
         JavalinTest.test(app, (server, client) -> {
-            var response = client.post(NamedRoutes.urlsPath(), "url=" + website);
+            var response = client.post(NamedRoutes.urlsPath(), "url=" + WEBSITE_NAME);
             assertThat(response.code()).isEqualTo(200);
             assertNotNull(response.body());
-            assertThat(response.body().string()).contains(website);
+            assertThat(response.body().string()).contains(WEBSITE_NAME);
         });
     }
 
@@ -152,13 +156,13 @@ class AppTest {
     public void testPostUrlPageRedirectIfAlreadyExist() {
         JavalinTest.test(app, (server, client) -> {
             var url = new Url();
-            url.setName(website);
+            url.setName(WEBSITE_NAME);
             UrlRepository.save(url);
 
             OkHttpClient customOkHttpClient = client.getOkHttp().newBuilder().followRedirects(false).build();
             var newClient = new HttpClient(app, customOkHttpClient);
 
-            var response = newClient.post(NamedRoutes.urlsPath(), "url=" + website);
+            var response = newClient.post(NamedRoutes.urlsPath(), "url=" + WEBSITE_NAME);
 
             assertThat(response.code()).isEqualTo(302);
             assertNotNull(response.body());

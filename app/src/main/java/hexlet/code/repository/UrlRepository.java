@@ -38,8 +38,8 @@ public class UrlRepository extends BaseRepository {
             var resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 var host = resultSet.getString("name");
-                var created_at = resultSet.getTimestamp("created_at");
-                var url = new Url(id, host, created_at.toLocalDateTime());
+                var createdAt = resultSet.getTimestamp("created_at");
+                var url = new Url(id, host, createdAt.toLocalDateTime());
                 url.setId(id);
                 return Optional.of(url);
             }
@@ -56,8 +56,8 @@ public class UrlRepository extends BaseRepository {
             while (resultSet.next()) {
                 var id = resultSet.getLong("id");
                 var host = resultSet.getString("name");
-                var created_at = resultSet.getTimestamp("created_at").toLocalDateTime();
-                var url = new Url(id, host, created_at);
+                var createdAt = resultSet.getTimestamp("created_at").toLocalDateTime();
+                var url = new Url(id, host, createdAt);
                 result.add(url);
             }
             return result;

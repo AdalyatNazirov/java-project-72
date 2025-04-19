@@ -34,7 +34,9 @@ public class UrlController {
 
     public static void create(Context ctx) {
         try {
-            var urlString = ctx.formParamAsClass("url", String.class).check(value -> !value.isEmpty(), "URL не должен быть пустым").get();
+            var urlString = ctx.formParamAsClass("url", String.class)
+                    .check(value -> !value.isEmpty(), "URL не должен быть пустым")
+                    .get();
 
             if (!isValidURL(urlString)) {
                 setFlashAndRedirect(ctx, "Некорректный URL", "danger", NamedRoutes.rootPath());

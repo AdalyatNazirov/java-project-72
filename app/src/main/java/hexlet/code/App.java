@@ -71,13 +71,16 @@ public class App {
     }
 
     private static String getConnectionString() {
-        return System.getenv().getOrDefault("JDBC_DATABASE_URL", "jdbc:h2:mem:project;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;");
+        return System.getenv()
+                .getOrDefault("JDBC_DATABASE_URL",
+                        "jdbc:h2:mem:project;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;");
     }
 
     private static String readResourceFile() throws IOException {
         try (var inputStream = App.class.getClassLoader().getResourceAsStream(SQL_SCHEMA_FILE)) {
             assert inputStream != null;
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+            try (BufferedReader reader =
+                         new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
                 return reader.lines().collect(Collectors.joining("\n"));
             }
         }
